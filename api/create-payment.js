@@ -1,12 +1,46 @@
 import { kv } from "@vercel/kv";
 
+function isValidString(str) {
+  return typeof str === "string" &&
+         str.trim().length > 0 &&
+         !/[<>]/.test(str);
+}
+
+function isValidPhone(str) {
+  return /^[0-9+\s-]{6,20}$/.test(str);
+}
+
+function isValidPostcode(str) {
+  return /^[0-9]{4}$/.test(str);
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { sourceId, amount, currency } = req.body;
+    const {
+      sourceId,
+      amount,
+      currency,
+      firstName,
+      lastName,
+      address,
+      city,
+      postcode,
+      phone
+    } = req.body;
+
+    if (!isValidString(firstName) ||
+        !isValidString(lastName) ||
+        !isValidString(address) ||
+        !isValidString(city) ||
+        !isValidPostcode(postcode) ||
+        !isValidPhone(phone)) {
+      return res.status(400).json({ success: false, error: "Invalid form data" });
+    }
+
     const accessToken = process.env.SQUARE_ACCESS_TOKEN;
     const locationId = process.env.SQUARE_LOCATION_ID;
 
@@ -26,29 +60,6 @@ export default async function handler(req, res) {
     });
 
     const data = await squareRes.json();
-
-    function isValidString(str) {
-      return typeof str === "string" &&
-             str.trim().length > 0 &&
-             !/[<>]/.test(str);
-    }
-    
-    function isValidPhone(str) {
-      return /^[0-9+\s-]{6,20}$/.test(str);
-    }
-    
-    function isValidPostcode(str) {
-      return /^[0-9]{4}$/.test(str);
-    }
-
-    if (!isValidString(firstName) ||
-        !isValidString(lastName) ||
-        !isValidString(address) ||
-        !isValidString(city) ||
-        !isValidPostcode(postcode) ||
-        !isValidPhone(phone)) {
-      return res.status(400).json({ success: false, error: "Invalid form data" });
-    }
 
     if (!squareRes.ok) {
       return res.status(500).json({ success: false, error: data });
