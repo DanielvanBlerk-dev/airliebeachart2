@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier — Original Fine Art</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
+<style>
+  :root {
+    --ink: #1a1612;
+    --warm-white: #f9f6f1;
+    --parchment: #ede9e1;
+    --gold: #b8965a;
+    --gold-light: #d4b07a;
+    --muted: #7a7368;
+    --border: rgba(26,22,18,0.12);
+    --accent: #3d2b1f;
+    --success: #2d5a27;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--warm-white);
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--warm-white);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3rem;
+    height: 64px;
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 300; letter-spacing: 0.12em;
+    color: var(--ink); text-decoration: none;
+    text-transform: uppercase;
+  }
+  .nav-logo span { font-style: italic; font-weight: 400; color: var(--gold); }
+  .nav-right { display: flex; align-items: center; gap: 2rem; }
+  .nav-link { color: var(--muted); text-decoration: none; letter-spacing: 0.08em; font-size: 11px; text-transform: uppercase; transition: color 0.2s; }
+  .nav-link:hover { color: var(--ink); }
+  .cart-btn {
+    background: none; border: 1px solid var(--border);
+    padding: 8px 18px; cursor: pointer; color: var(--ink);
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+    transition: all 0.2s;
+  }
+  .cart-btn:hover { background: var(--parchment); border-color: var(--gold); }
+  .cart-count {
+    background: var(--gold); color: #fff;
+    width: 18px; height: 18px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 400;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 6rem 3rem 5rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: end;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-eyebrow {
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1.5rem;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 5vw, 72px);
+    font-weight: 300; line-height: 1.05;
+    color: var(--ink);
+  }
+  .hero-title em { font-style: italic; color: var(--gold); display: block; }
+  .hero-sub {
+    margin-top: 1.5rem; color: var(--muted); line-height: 1.8;
+    max-width: 38ch; font-size: 13px;
+  }
+  .hero-right {
+    text-align: right;
+  }
+  .hero-stat {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px; font-weight: 300;
+    color: var(--parchment); -webkit-text-stroke: 1px var(--border);
+    line-height: 1;
+  }
+  .hero-stat-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+
+  /* GALLERY */
+  .section { padding: 5rem 3rem; }
+  .section-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 3rem; padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px; font-weight: 300; letter-spacing: 0.02em;
+  }
+  .section-meta { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2.5rem;
+  }
+  .artwork-card {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  .artwork-card:hover { transform: translateY(-4px); }
+  .artwork-img {
+    width: 100%;
+    background: var(--parchment);
+    overflow: hidden; position: relative;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .artwork-img img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .artwork-img svg { width: 100%; height: auto; display: block; }
+  .sold-overlay {
+    position: absolute; inset: 0;
+    background: rgba(249,246,241,0.85);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .artwork-label { display: flex; justify-content: space-between; align-items: baseline; }
+  .artwork-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-weight: 400; font-style: italic;
+  }
+  .artwork-price { font-size: 12px; color: var(--gold); letter-spacing: 0.08em; }
+  .artwork-medium { font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: 0.06em; }
+  .add-btn {
+    margin-top: 12px; width: 100%;
+    background: none; border: 1px solid var(--border);
+    padding: 10px; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
+    transition: all 0.25s;
+  }
+  .add-btn:hover:not(:disabled) { background: var(--ink); color: var(--warm-white); border-color: var(--ink); }
+  .add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .add-btn.added { background: var(--accent); color: var(--warm-white); border-color: var(--accent); }
+
+  /* CART PANEL */
+  .cart-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(26,22,18,0.45);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .cart-overlay.open { opacity: 1; pointer-events: all; }
+  .cart-panel {
+    position: fixed; right: 0; top: 0; bottom: 0; z-index: 201;
+    width: min(480px, 100vw);
+    background: var(--warm-white);
+    border-left: 1px solid var(--border);
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .cart-panel.open { transform: translateX(0); }
+  .cart-head {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cart-head-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 300; letter-spacing: 0.05em;
+  }
+  .close-btn {
+    background: none; border: none; cursor: pointer; color: var(--muted);
+    font-family: 'DM Mono', monospace; font-size: 18px; line-height: 1;
+    padding: 4px; transition: color 0.2s;
+  }
+  .close-btn:hover { color: var(--ink); }
+  .cart-items { flex: 1; overflow-y: auto; padding: 1.5rem 2rem; }
+  .cart-empty {
+    text-align: center; padding: 4rem 0;
+    color: var(--muted); font-size: 12px; letter-spacing: 0.1em;
+  }
+  .cart-item {
+    display: grid; grid-template-columns: 70px 1fr auto;
+    gap: 1rem; align-items: start;
+    padding: 1rem 0; border-bottom: 1px solid var(--border);
+  }
+  .cart-item-thumb {
+    width: 70px; min-height: 70px;
+    background: var(--parchment); border: 1px solid var(--border);
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cart-item-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .cart-item-thumb svg { width: 100%; height: auto; display: block; }
+  .cart-item-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; font-style: italic; line-height: 1.3;
+  }
+  .cart-item-meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .cart-item-price { font-size: 13px; color: var(--gold); white-space: nowrap; }
+  .remove-item { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 10px; letter-spacing: 0.1em; display: block; margin-top: 8px; text-transform: uppercase; transition: color 0.2s; }
+  .remove-item:hover { color: #c0392b; }
+  .cart-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border);
+    background: var(--parchment);
+  }
+  .cart-total {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 1.5rem;
+  }
+  .cart-total-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .cart-total-amount {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 300; color: var(--ink);
+  }
+  .checkout-btn {
+    width: 100%; padding: 16px;
+    background: var(--ink); color: var(--warm-white);
+    border: none; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    transition: background 0.2s;
+  }
+  .checkout-btn:hover { background: var(--accent); }
+
+  /* CHECKOUT MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(26,22,18,0.6);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+    padding: 2rem;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--warm-white);
+    width: 100%; max-width: 560px;
+    max-height: 90vh; overflow-y: auto;
+    border: 1px solid var(--border);
+    transform: translateY(20px);
+    transition: transform 0.3s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-head {
+    padding: 2rem 2.5rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px; font-weight: 300;
+  }
+  .modal-body { padding: 2rem 2.5rem; }
+  .order-summary {
+    background: var(--parchment);
+    padding: 1.25rem; margin-bottom: 2rem;
+    border: 1px solid var(--border);
+  }
+  .order-line {
+    display: flex; justify-content: space-between;
+    font-size: 12px; padding: 3px 0;
+  }
+  .order-line.total {
+    border-top: 1px solid var(--border); margin-top: 8px; padding-top: 10px;
+    font-family: 'Cormorant Garamond', serif; font-size: 16px;
+  }
+  .form-section { margin-bottom: 1.5rem; }
+  .form-section-title {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem;
+    padding-bottom: 6px; border-bottom: 1px solid var(--border);
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { margin-bottom: 12px; }
+  .form-group label { display: block; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--border); background: white;
+    font-family: 'DM Mono', monospace; font-size: 13px; color: var(--ink);
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--gold); }
+  /* Square payment form */
+  #card-container {
+    border: 1px solid var(--border);
+    padding: 12px; background: white; margin-bottom: 12px;
+    min-height: 48px;
+  }
+  .sq-card-message { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .pay-btn {
+    width: 100%; padding: 16px;
+    background: var(--gold); color: white;
+    border: none; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    transition: background 0.2s; margin-top: 1rem;
+  }
+  .pay-btn:hover:not(:disabled) { background: var(--gold-light); }
+  .pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .payment-error { color: #c0392b; font-size: 11px; margin-top: 8px; display: none; }
+
+  /* SUCCESS STATE */
+  .success-state {
+    text-align: center; padding: 4rem 2.5rem;
+    display: none;
+  }
+  .success-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--parchment); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem; font-size: 24px;
+  }
+  .success-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px; font-weight: 300; margin-bottom: 1rem;
+  }
+  .success-sub { color: var(--muted); font-size: 12px; line-height: 1.8; }
+  .success-order { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--gold); margin-top: 1rem; }
+
+  /* SANDBOX NOTICE */
+  .sandbox-notice {
+    background: #fffbeb; border: 1px solid #f5c842;
+    padding: 10px 16px; font-size: 11px; color: #7a6010;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem;
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--muted); font-size: 11px; letter-spacing: 0.08em;
+  }
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; font-weight: 300; color: var(--ink);
+  }
+
+  /* ADMIN BAR */
+  .admin-bar {
+    display: none;
+    background: var(--ink); color: var(--warm-white);
+    padding: 0 3rem; height: 44px;
+    align-items: center; justify-content: space-between;
+    font-size: 11px; letter-spacing: 0.1em;
+  }
+  .admin-bar.visible { display: flex; }
+  .admin-bar-left { display: flex; align-items: center; gap: 16px; }
+  .admin-badge {
+    background: var(--gold); color: #fff;
+    padding: 3px 10px; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  .admin-btn {
+    background: none; border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.8); padding: 5px 14px; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.2s;
+  }
+  .admin-btn:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.4); }
+  .admin-btn.danger:hover { background: rgba(192,57,43,0.3); border-color: rgba(192,57,43,0.6); color: #f5a0a0; }
+
+  /* ADMIN CONTROLS ON CARD */
+  .admin-controls {
+    display: none;
+    margin-top: 8px;
+    gap: 6px;
+  }
+  .admin-controls.visible { display: flex; }
+  .admin-ctrl-btn {
+    flex: 1; padding: 8px 4px;
+    background: none; border: 1px solid var(--border); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+    transition: all 0.2s;
+  }
+  .admin-ctrl-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .admin-ctrl-btn.del:hover { border-color: #c0392b; color: #c0392b; background: #fff5f5; }
+  .admin-ctrl-btn.sold-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* LOGIN MODAL */
+  .login-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(26,22,18,0.7);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .login-overlay.open { opacity: 1; pointer-events: all; }
+  .login-box {
+    background: var(--warm-white);
+    width: 100%; max-width: 380px;
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    transform: translateY(12px); transition: transform 0.25s;
+  }
+  .login-overlay.open .login-box { transform: translateY(0); }
+  .login-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px; font-weight: 300; margin-bottom: 0.5rem;
+  }
+  .login-sub { font-size: 11px; color: var(--muted); margin-bottom: 2rem; letter-spacing: 0.06em; }
+  .login-error { color: #c0392b; font-size: 11px; margin-top: 8px; min-height: 16px; }
+  .login-btn {
+    width: 100%; padding: 12px; margin-top: 1rem;
+    background: var(--ink); color: var(--warm-white); border: none; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase; transition: background 0.2s;
+  }
+  .login-btn:hover { background: var(--accent); }
+
+  /* ADD PAINTING MODAL */
+  .add-panel {
+    position: fixed; right: 0; top: 0; bottom: 0; z-index: 400;
+    width: min(520px, 100vw);
+    background: var(--warm-white);
+    border-left: 1px solid var(--border);
+    box-shadow: -8px 0 32px rgba(26,22,18,0.12);
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .add-panel.open { transform: translateX(0); }
+  .add-panel-head {
+    padding: 1.5rem 2rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .add-panel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 300;
+  }
+  .add-panel-body { flex: 1; overflow-y: auto; padding: 2rem; }
+  .img-upload-area {
+    border: 1px dashed var(--gold); padding: 2rem;
+    text-align: center; cursor: pointer; transition: background 0.2s;
+    margin-bottom: 1.5rem; background: var(--parchment);
+  }
+  .img-upload-area:hover { background: #e8e2d6; }
+  .img-upload-area input { display: none; }
+  .img-preview { max-width: 100%; max-height: 200px; object-fit: contain; margin-top: 12px; }
+  .add-panel-footer {
+    padding: 1.5rem 2rem; border-top: 1px solid var(--border); background: var(--parchment);
+  }
+  .save-btn {
+    width: 100%; padding: 14px;
+    background: var(--gold); color: #fff; border: none; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase; transition: background 0.2s;
+  }
+  .save-btn:hover { background: var(--gold-light); }
+
+  /* DELETE CONFIRM */
+  .confirm-overlay {
+    position: fixed; inset: 0; z-index: 600;
+    background: rgba(26,22,18,0.6);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .confirm-overlay.open { opacity: 1; pointer-events: all; }
+  .confirm-box {
+    background: var(--warm-white); border: 1px solid var(--border);
+    padding: 2rem; max-width: 340px; width: 100%; text-align: center;
+  }
+  .confirm-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 300; margin-bottom: 0.75rem;
+  }
+  .confirm-sub { font-size: 12px; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.7; }
+  .confirm-btns { display: flex; gap: 10px; }
+  .confirm-btns button {
+    flex: 1; padding: 12px; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .confirm-cancel { background: none; border: 1px solid var(--border); color: var(--ink); transition: background 0.2s; }
+  .confirm-cancel:hover { background: var(--parchment); }
+  .confirm-delete { background: #c0392b; color: #fff; border: none; transition: background 0.2s; }
+  .confirm-delete:hover { background: #a93226; }
+
+  @media (max-width: 700px) {
+    nav { padding: 0 1.5rem; }
+    .hero { grid-template-columns: 1fr; padding: 3rem 1.5rem; gap: 2rem; }
+    .hero-right { display: none; }
+    .section { padding: 3rem 1.5rem; }
+    .gallery { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 2rem; }
+    .modal-body, .modal-head { padding: 1.5rem; }
+    .form-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Ate<span>lier</span></a>
+  <div class="nav-right">
+    <a href="#gallery" class="nav-link">Works</a>
+    <a href="#about" class="nav-link">About</a>
+    <a href="#" class="nav-link" id="admin-nav-link" onclick="event.preventDefault(); openLogin()" style="color:var(--border);font-size:10px;" title="Owner login">&#9679;</a>
+    <button class="cart-btn" onclick="toggleCart()">
+      Cart <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <p class="hero-eyebrow">Original Fine Art — Unique Works</p>
+    <h1 class="hero-title">
+      Paintings made<br>to be<br><em>lived with.</em>
+    </h1>
+    <p class="hero-sub">Each work is a singular original — oil and acrylic on linen or board. Signed, certificated, and shipped directly from the studio.</p>
+  </div>
+  <div class="hero-right">
+    <div class="hero-stat">XII</div>
+    <div class="hero-stat-label">Works Available</div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="section" id="gallery">
+  <div class="section-header">
+    <h2 class="section-title">Current Collection</h2>
+    <span class="section-meta">All works — oil on linen unless noted</span>
+  </div>
+  <div class="gallery" id="gallery-grid"></div>
+</section>
+
+<!-- ABOUT -->
+<section class="section" id="about" style="border-top:1px solid var(--border); background:var(--parchment);">
+  <div style="max-width:560px; margin:0 auto; text-align:center;">
+    <p class="hero-eyebrow" style="text-align:center;">The Artist</p>
+    <h2 class="section-title" style="font-size:36px; margin-bottom:1.5rem;">A studio practice<br><em style="font-family:'Cormorant Garamond',serif; font-style:italic;">rooted in observation.</em></h2>
+    <p style="color:var(--muted); line-height:1.9; font-size:13px;">Each painting begins with weeks of looking — at light, at form, at the particular quality of stillness in a moment. Works are produced in small series and sold as unique originals. Certificates of authenticity are included with every purchase.</p>
+    <p style="margin-top:1.5rem; font-size:11px; letter-spacing:0.1em; color:var(--gold);">STUDIO — TOWNSVILLE, QLD, AUSTRALIA</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">Atelier</span>
+  <span>© 2026 · All works original · Secure payment via Square</span>
+  <span style="display:flex;align-items:center;gap:6px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    SSL Secured
+  </span>
+</footer>
+
+<!-- ADMIN BAR (shown when logged in) -->
+<div class="admin-bar" id="admin-bar">
+  <div class="admin-bar-left">
+    <span class="admin-badge">Admin</span>
+    <span style="color:rgba(255,255,255,0.5);">You are viewing the site as owner</span>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <button class="admin-btn" onclick="openAddPanel()">+ Add painting</button>
+    <button class="admin-btn danger" onclick="adminLogout()">Log out</button>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <h2 class="login-title">Owner login</h2>
+    <p class="login-sub">Enter your admin password to manage the gallery.</p>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="admin-pw" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter') attemptLogin()">
+    </div>
+    <div class="login-error" id="login-error"></div>
+    <button class="login-btn" onclick="attemptLogin()">Sign in</button>
+    <button onclick="closeLogin()" style="width:100%;margin-top:10px;background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:8px;">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD PAINTING PANEL -->
+<div class="add-panel" id="add-panel">
+  <div class="add-panel-head">
+    <h2 class="add-panel-title">Add a painting</h2>
+    <button class="close-btn" onclick="closeAddPanel()">✕</button>
+  </div>
+  <div class="add-panel-body">
+    <div class="img-upload-area" onclick="document.getElementById('img-file').click()">
+      <input type="file" id="img-file" accept="image/*" onchange="handleImgUpload(event)">
+      <div id="img-placeholder">
+        <div style="font-size:24px;margin-bottom:8px;color:var(--gold);">+</div>
+        <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">Click to upload image</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;">JPG, PNG, WEBP</div>
+      </div>
+      <img id="img-preview-el" class="img-preview" style="display:none;">
+    </div>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="new-title" placeholder="e.g. Still Life with Roses">
+    </div>
+    <div class="form-group">
+      <label>Medium & dimensions</label>
+      <input type="text" id="new-medium" placeholder="e.g. Oil on linen · 40 × 50 cm">
+    </div>
+    <div class="form-group">
+      <label>Price (AUD)</label>
+      <input type="number" id="new-price" placeholder="1200" min="0">
+    </div>
+    <div class="form-group" style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+      <input type="checkbox" id="new-sold" style="width:auto;">
+      <label for="new-sold" style="margin:0;text-transform:none;letter-spacing:0;font-size:12px;">Mark as sold</label>
+    </div>
+    <div id="add-error" style="color:#c0392b;font-size:11px;margin-top:8px;min-height:16px;"></div>
+  </div>
+  <div class="add-panel-footer">
+    <button class="save-btn" onclick="saveNewPainting()">Save painting to gallery</button>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <h2 class="confirm-title">Remove painting?</h2>
+    <p class="confirm-sub" id="confirm-sub">This will remove the work from your gallery permanently.</p>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-delete" onclick="deletePainting()">Remove</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+<div class="cart-panel" id="cart-panel">
+  <div class="cart-head">
+    <h2 class="cart-head-title">Your Selection</h2>
+    <button class="close-btn" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items">
+    <div class="cart-empty" id="cart-empty">No works selected yet.</div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total-amount" id="cart-total">$0</span>
+    </div>
+    <button class="checkout-btn" onclick="openCheckout()" id="checkout-btn" disabled>
+      Proceed to Checkout
+    </button>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkout-modal">
+  <div class="modal" id="checkout-modal-box">
+    <div class="modal-head">
+      <h2 class="modal-title">Checkout</h2>
+      <button class="close-btn" onclick="closeCheckout()">✕</button>
+    </div>
+    <div class="modal-body" id="checkout-body">
+      <div class="sandbox-notice">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <strong>Sandbox mode</strong>&nbsp;· Use test card 4111 1111 1111 1111, any future date, CVV 111
+      </div>
+
+      <div class="order-summary" id="order-summary"></div>
+
+      <div class="form-section">
+        <div class="form-section-title">Contact</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>First name</label>
+            <input type="text" id="first-name" placeholder="Jane">
+          </div>
+          <div class="form-group">
+            <label>Last name</label>
+            <input type="text" id="last-name" placeholder="Smith">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="jane@example.com">
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="phone" placeholder="+61 400 000 000">
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Shipping address</div>
+        <div class="form-group">
+          <label>Street address</label>
+          <input type="text" id="address" placeholder="123 Main Street">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" id="city" placeholder="Townsville">
+          </div>
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" id="state" placeholder="QLD">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Postcode</label>
+            <input type="text" id="postcode" placeholder="4810">
+          </div>
+          <div class="form-group">
+            <label>Country</label>
+            <input type="text" id="country" value="Australia" placeholder="Australia">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Payment</div>
+        <div id="card-container"></div>
+        <p class="sq-card-message">Payments processed securely by Square. We never store your card details.</p>
+        <div class="payment-error" id="payment-error"></div>
+        <button class="pay-btn" id="pay-btn" onclick="handlePayment()">
+          Complete Purchase
+        </button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-state" id="success-state">
+      <div class="success-icon">✦</div>
+      <h2 class="success-title">Thank you.</h2>
+      <p class="success-sub">
+        Your order has been confirmed and payment received.<br>
+        A confirmation has been sent to your email.<br>
+        Your artwork will be carefully packaged and shipped within 5–7 business days.
+      </p>
+      <p class="success-order" id="success-order-id"></p>
+      <button onclick="closeCheckout(); resetShop();" style="margin-top:2rem; background:none; border:1px solid var(--border); padding:12px 24px; cursor:pointer; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase;">
+        Continue Browsing
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── SQUARE CONFIGURATION ──────────────────────────────────────────────── */
+const SQUARE_CONFIG = {
+  applicationId: 'sandbox-sq0idb-REPLACE_WITH_YOUR_APP_ID',
+  locationId:    'REPLACE_WITH_YOUR_LOCATION_ID',
+};
+
+/* ─── ADMIN CONFIGURATION ───────────────────────────────────────────────── */
+// Change this to your own password before deploying:
+const ADMIN_PASSWORD = 'atelier2026';
+const STORAGE_KEY = 'atelier_artworks';
+const SESSION_KEY = 'atelier_admin';
+
+let isAdmin = false;
+let pendingDeleteId = null;
+
+/* ─── DEFAULT ARTWORK DATA ──────────────────────────────────────────────── */
+const DEFAULT_ARTWORKS = [
+  { id:1, title:'Still Life with Lemons', medium:'Oil on linen · 50 × 60 cm', price:1800, sold:false,
+    svg:`<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#f0ebe0"/><rect x="0" y="280" width="300" height="120" fill="#d4c9b0"/><ellipse cx="110" cy="265" rx="48" ry="22" fill="#c8a820" opacity="0.9"/><ellipse cx="190" cy="270" rx="42" ry="19" fill="#d4b422"/><ellipse cx="150" cy="258" rx="36" ry="16" fill="#e8c830"/><rect x="80" y="100" width="140" height="165" rx="2" fill="#9b8870" opacity="0.3"/><path d="M120 180 Q150 140 180 180" stroke="#7a6050" fill="none" stroke-width="1.5"/><circle cx="90" cy="80" r="8" fill="#8fb050" opacity="0.6"/><circle cx="200" cy="90" r="6" fill="#7a9840" opacity="0.5"/><text x="150" y="360" text-anchor="middle" font-family="serif" font-size="9" fill="#7a6050" opacity="0.5">still life with lemons</text></svg>`},
+  { id:2, title:'Coastal Morning', medium:'Oil on board · 30 × 40 cm', price:950, sold:false,
+    svg:`<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#e8eef5"/><rect y="0" width="300" height="220" fill="#c8d8e8"/><rect y="220" width="300" height="60" fill="#b8c8d8"/><rect y="280" width="300" height="120" fill="#d4c8a8"/><ellipse cx="150" cy="80" rx="60" ry="40" fill="#f5f0e8" opacity="0.7"/><path d="M0 250 Q75 235 150 248 Q225 260 300 245" stroke="#8a9ab0" fill="none" stroke-width="1.5" opacity="0.6"/><path d="M0 265 Q75 250 150 262 Q225 274 300 258" stroke="#7a8aa0" fill="none" stroke-width="1" opacity="0.4"/></svg>`},
+  { id:3, title:'Interior, Late Afternoon', medium:'Acrylic on linen · 60 × 80 cm', price:2400, sold:false,
+    svg:`<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#e8dcc8"/><rect x="160" y="40" width="100" height="250" fill="#f5e8c0" opacity="0.8"/><rect x="0" y="0" width="160" height="300" fill="#c8b898" opacity="0.4"/><rect x="60" y="180" width="80" height="120" rx="2" fill="#6a5840" opacity="0.3"/><rect x="40" y="300" width="220" height="100" fill="#a89878"/><circle cx="80" cy="160" r="30" fill="#d4a840" opacity="0.4"/><rect x="170" y="50" width="80" height="180" fill="#f0d890" opacity="0.5"/></svg>`},
+  { id:4, title:'Portrait Study No. 7', medium:'Oil on board · 25 × 35 cm', price:1200, sold:true,
+    svg:`<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#e0d4c8"/><rect x="50" y="50" width="200" height="300" fill="#c8b8a8" opacity="0.4"/><ellipse cx="150" cy="160" rx="55" ry="65" fill="#d4a888" opacity="0.9"/><ellipse cx="150" cy="100" rx="40" ry="45" fill="#c09878"/><path d="M120 165 Q150 180 180 165" stroke="#8a6858" fill="none" stroke-width="1.5"/><ellipse cx="134" cy="150" rx="8" ry="5" fill="#704030" opacity="0.5"/><ellipse cx="166" cy="150" rx="8" ry="5" fill="#704030" opacity="0.5"/><rect x="110" y="225" width="80" height="100" fill="#b8a088" opacity="0.6"/></svg>`},
+  { id:5, title:'Garden at Dusk', medium:'Oil on linen · 70 × 90 cm', price:3200, sold:false,
+    svg:`<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#2a2040"/><rect y="250" width="300" height="150" fill="#3a3428" opacity="0.9"/><circle cx="200" cy="80" r="35" fill="#d4901c" opacity="0.5"/><ellipse cx="80" cy="240" rx="45" ry="80" fill="#2a4820" opacity="0.8"/><ellipse cx="220" cy="230" rx="35" ry="65" fill="#1e3818" opacity="0.8"/><ellipse cx="150" cy="260" rx="55" ry="50" fill="#304820"/><path d="M40 280 Q150 260 260 280 L260 400 L40 400Z" fill="#283020"/></svg>`},
+  { id:6, title:'The White Jug', medium:'Oil on board · 20 × 25 cm', price:680, sold:false,
+    svg:`<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#e8e4dc"/><rect y="280" width="300" height="120" fill="#d0ccc4"/><path d="M120 280 Q110 200 120 140 Q130 100 150 100 Q170 100 180 140 Q190 200 180 280Z" fill="#f5f3ef"/><path d="M180 160 Q210 155 205 175 Q200 195 180 185" fill="#f5f3ef"/><path d="M120 280 Q110 200 120 140 Q130 100 150 100 Q170 100 180 140 Q190 200 180 280Z" fill="none" stroke="#c8c4bc" stroke-width="1"/><ellipse cx="150" cy="280" rx="32" ry="8" fill="#c8c4bc"/></svg>`},
+];
+
+function loadArtworks() {
+  try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : DEFAULT_ARTWORKS; }
+  catch { return DEFAULT_ARTWORKS; }
+}
+function saveArtworks() {
+  try {
+    const toSave = artworks.map(a => {
+      const copy = Object.assign({}, a);
+      // imgData can be megabytes — store a flag instead and keep the in-memory blob
+      if (copy.imgData) copy.imgData = copy.imgData; // keep for now; if quota fails, see below
+      return copy;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch (e) {
+    console.warn('localStorage save failed (quota?), trying without image data:', e);
+    try {
+      const slim = artworks.map(a => Object.assign({}, a, { imgData: null }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+    } catch (e2) {
+      console.error('localStorage completely failed:', e2);
+    }
+  }
+}
+let artworks = loadArtworks();
+
+/* ─── CART STATE ────────────────────────────────────────────────────────── */
+let cart = [];
+let squareCard = null;
+let squarePayments = null;
+
+/* ─── ADMIN AUTH ────────────────────────────────────────────────────────── */
+function checkSession() { try { return sessionStorage.getItem(SESSION_KEY)==='1'; } catch { return false; } }
+
+function openLogin() {
+  document.getElementById('admin-pw').value = '';
+  document.getElementById('login-error').textContent = '';
+  document.getElementById('login-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('admin-pw').focus(), 200);
+}
+function closeLogin() { document.getElementById('login-overlay').classList.remove('open'); }
+
+function attemptLogin() {
+  const pw = document.getElementById('admin-pw').value;
+  if (pw === ADMIN_PASSWORD) {
+    try { sessionStorage.setItem(SESSION_KEY, '1'); } catch {}
+    isAdmin = true;
+    closeLogin();
+    activateAdminMode();
+  } else {
+    document.getElementById('login-error').textContent = 'Incorrect password.';
+    document.getElementById('admin-pw').value = '';
+    document.getElementById('admin-pw').focus();
+  }
+}
+
+function adminLogout() {
+  try { sessionStorage.removeItem(SESSION_KEY); } catch {}
+  isAdmin = false;
+  document.getElementById('admin-bar').classList.remove('visible');
+  document.getElementById('admin-nav-link').style.color = 'var(--border)';
+  renderGallery();
+}
+
+function activateAdminMode() {
+  isAdmin = true;
+  document.getElementById('admin-bar').classList.add('visible');
+  document.getElementById('admin-nav-link').style.color = 'var(--gold)';
+  renderGallery();
+}
+
+/* ─── RENDER GALLERY ────────────────────────────────────────────────────── */
+function renderGallery() {
+  const grid = document.getElementById('gallery-grid');
+  grid.innerHTML = artworks.map(art => {
+    const imgContent = art.imgData
+      ? `<img src="${art.imgData}" style="width:100%;height:100%;object-fit:cover;">`
+      : (art.svg || `<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#e8e4dc"/><text x="150" y="210" text-anchor="middle" font-family="serif" font-size="13" fill="#a09880">${art.title}</text></svg>`);
+    return `
+    <div class="artwork-card" id="card-${art.id}">
+      <div class="artwork-img">
+        ${imgContent}
+        ${art.sold ? '<div class="sold-overlay">Sold</div>' : ''}
+      </div>
+      <div class="artwork-label">
+        <span class="artwork-title">${art.title}</span>
+        <span class="artwork-price">AUD $${art.price.toLocaleString()}</span>
+      </div>
+      <div class="artwork-medium">${art.medium}</div>
+      <button class="add-btn ${inCart(art.id)?'added':''}" id="btn-${art.id}"
+        onclick="addToCart(${art.id})" ${art.sold||inCart(art.id)?'disabled':''}>
+        ${art.sold ? 'Sold' : inCart(art.id) ? 'In your selection' : '+ Add to selection'}
+      </button>
+      <div class="admin-controls ${isAdmin?'visible':''}">
+        <button class="admin-ctrl-btn sold-toggle" onclick="toggleSold(${art.id})">
+          ${art.sold ? 'Mark available' : 'Mark sold'}
+        </button>
+        <button class="admin-ctrl-btn del" onclick="confirmDelete(${art.id}, ${JSON.stringify(art.title)})">
+          Delete
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function inCart(id) { return cart.some(i => i.id === id); }
+
+/* ─── ADMIN ACTIONS ─────────────────────────────────────────────────────── */
+function toggleSold(id) {
+  id = Number(id);
+  const art = artworks.find(a => Number(a.id) === id);
+  if (!art) return;
+  art.sold = !art.sold;
+  if (art.sold) cart = cart.filter(i => Number(i.id) !== id);
+  saveArtworks(); updateCartUI(); renderGallery();
+}
+
+function confirmDelete(id, title) {
+  pendingDeleteId = Number(id);
+  document.getElementById('confirm-sub').textContent = `"${title}" will be removed from your gallery permanently.`;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+}
+function deletePainting() {
+  const id = pendingDeleteId;
+  if (id === null || id === undefined) return;
+  artworks = artworks.filter(a => Number(a.id) !== id);
+  cart = cart.filter(i => Number(i.id) !== id);
+  pendingDeleteId = null;
+  saveArtworks(); updateCartUI(); renderGallery(); closeConfirm();
+}
+
+/* ─── ADD PAINTING ──────────────────────────────────────────────────────── */
+let newImgData = null;
+
+function openAddPanel() {
+  document.getElementById('add-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  ['new-title','new-medium','new-price'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('new-sold').checked = false;
+  document.getElementById('add-error').textContent = '';
+  document.getElementById('img-placeholder').style.display = 'block';
+  document.getElementById('img-preview-el').style.display = 'none';
+  newImgData = null;
+}
+function closeAddPanel() {
+  document.getElementById('add-panel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleImgUpload(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    newImgData = ev.target.result;
+    document.getElementById('img-placeholder').style.display = 'none';
+    const preview = document.getElementById('img-preview-el');
+    preview.src = newImgData; preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+function saveNewPainting() {
+  const title = document.getElementById('new-title').value.trim();
+  const medium = document.getElementById('new-medium').value.trim();
+  const priceRaw = document.getElementById('new-price').value;
+  const sold = document.getElementById('new-sold').checked;
+  const errEl = document.getElementById('add-error');
+  if (!title) { errEl.textContent = 'Please enter a title.'; return; }
+  if (!medium) { errEl.textContent = 'Please enter the medium and dimensions.'; return; }
+  const price = parseInt(priceRaw, 10);
+  if (!priceRaw || isNaN(price) || price < 0) { errEl.textContent = 'Please enter a valid price.'; return; }
+  const newId = Date.now();
+  artworks.push({ id: newId, title, medium, price, sold, imgData: newImgData || null, svg: null });
+  saveArtworks(); renderGallery(); closeAddPanel();
+  setTimeout(() => document.getElementById('card-'+newId)?.scrollIntoView({ behavior:'smooth', block:'center' }), 200);
+}
+
+/* ─── CART LOGIC ────────────────────────────────────────────────────────── */
+function addToCart(id) {
+  const art = artworks.find(a => a.id === id);
+  if (!art || art.sold || inCart(id)) return;
+  cart.push(art); updateCartUI(); renderGallery(); openCart();
+}
+function removeFromCart(id) { cart = cart.filter(i => i.id !== id); updateCartUI(); renderGallery(); }
+
+function updateCartUI() {
+  const count = cart.length;
+  document.getElementById('cart-count').textContent = count;
+  document.getElementById('checkout-btn').disabled = count === 0;
+  const total = cart.reduce((s, i) => s + i.price, 0);
+  document.getElementById('cart-total').textContent = `AUD $${total.toLocaleString()}`;
+  const itemsEl = document.getElementById('cart-items');
+  const empty = document.getElementById('cart-empty');
+  if (count === 0) { empty.style.display = 'block'; itemsEl.innerHTML = ''; itemsEl.appendChild(empty); return; }
+  empty.style.display = 'none';
+  itemsEl.innerHTML = cart.map(art => {
+    const thumb = art.imgData ? `<img src="${art.imgData}" style="width:100%;height:100%;object-fit:cover;">` : (art.svg || '');
+    return `<div class="cart-item">
+      <div class="cart-item-thumb">${thumb}</div>
+      <div>
+        <div class="cart-item-name">${art.title}</div>
+        <div class="cart-item-meta">${art.medium}</div>
+        <button class="remove-item" onclick="removeFromCart(${art.id})">Remove</button>
+      </div>
+      <div class="cart-item-price">$${art.price.toLocaleString()}</div>
+    </div>`;
+  }).join('');
+}
+
+function openCart() {
+  document.getElementById('cart-overlay').classList.add('open');
+  document.getElementById('cart-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function toggleCart() {
+  const open = document.getElementById('cart-panel').classList.contains('open');
+  if (open) {
+    document.getElementById('cart-overlay').classList.remove('open');
+    document.getElementById('cart-panel').classList.remove('open');
+    document.body.style.overflow = '';
+  } else { openCart(); }
+}
+
+/* ─── CHECKOUT ──────────────────────────────────────────────────────────── */
+function buildOrderSummary() {
+  const total = cart.reduce((s, i) => s + i.price, 0);
+
+const res = await fetch("/api/create-payment", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    sourceId,
+    amount: total * 100,   // convert AUD → cents
+    currency: "AUD"
+  })
+});
+
+const data = await res.json();
+
+if (!data.success) {
+  showPaymentError("Payment failed. Please try again.");
+  return;
+}
+
+showSuccess(data.orderId);
+
+}
+
+async function initSquare() {
+  if (!window.Square) { showPaymentError('Square failed to load.'); return; }
+  try {
+    squarePayments = window.Square.payments(SQUARE_CONFIG.applicationId, SQUARE_CONFIG.locationId);
+    squareCard = await squarePayments.card();
+    await squareCard.attach('#card-container');
+  } catch (e) {
+    console.error('Square init error:', e);
+    document.getElementById('card-container').innerHTML =
+      `<p style="color:var(--muted);font-size:12px;padding:12px 0;">⚠️ Payment form could not load. Replace the Square sandbox credentials in SQUARE_CONFIG.</p>`;
+  }
+}
+
+async function openCheckout() {
+  document.getElementById('cart-overlay').classList.remove('open');
+  document.getElementById('cart-panel').classList.remove('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('order-summary').innerHTML = buildOrderSummary();
+  document.getElementById('checkout-modal').classList.add('open');
+  document.getElementById('checkout-body').style.display = 'block';
+  document.getElementById('success-state').style.display = 'none';
+  if (!squareCard) await initSquare();
+}
+function closeCheckout() { document.getElementById('checkout-modal').classList.remove('open'); document.body.style.overflow = ''; }
+
+function showPaymentError(msg) { const el = document.getElementById('payment-error'); el.textContent = msg; el.style.display = 'block'; }
+
+function validateForm() {
+  const fields = [['first-name','First name'],['last-name','Last name'],['email','Email'],['address','Address'],['city','City'],['postcode','Postcode']];
+  for (const [id, label] of fields) {
+    if (!document.getElementById(id).value.trim()) { showPaymentError(`Please enter your ${label}.`); return false; }
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('email').value)) { showPaymentError('Please enter a valid email address.'); return false; }
+  return true;
+}
+
+async function handlePayment() {
+  document.getElementById('payment-error').style.display = 'none';
+  if (!validateForm()) return;
+  if (!squareCard) { showPaymentError('Payment form is not ready. Please try again.'); return; }
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true; btn.textContent = 'Processing…';
+  try {
+    const result = await squareCard.tokenize();
+    if (result.status === 'OK') {
+      await processPayment(result.token);
+    } else {
+      showPaymentError(result.errors?.map(e => e.message).join(' ') || 'Card error — please check your details.');
+      btn.disabled = false; btn.textContent = 'Complete Purchase';
+    }
+  } catch (e) {
+    showPaymentError('An unexpected error occurred. Please try again.');
+    console.error(e); btn.disabled = false; btn.textContent = 'Complete Purchase';
+  }
+}
+
+async function processPayment(sourceId) {
+  // Send sourceId to your backend → Square /v2/payments. Never charge from the browser.
+  await new Promise(r => setTimeout(r, 1400));
+  const orderId = 'ATL-' + Math.random().toString(36).substr(2,8).toUpperCase();
+  // Mark sold
+  cart.forEach(item => { const art = artworks.find(a => a.id === item.id); if (art) art.sold = true; });
+  saveArtworks();
+  showSuccess(orderId);
+}
+
+function showSuccess(orderId) {
+  document.getElementById('checkout-body').style.display = 'none';
+  document.getElementById('success-state').style.display = 'block';
+  document.getElementById('success-order-id').textContent = `Order ${orderId}`;
+}
+
+function resetShop() {
+  cart = []; updateCartUI(); renderGallery();
+  squareCard = null; squarePayments = null;
+  document.getElementById('card-container').innerHTML = '';
+}
+
+/* ─── INIT ──────────────────────────────────────────────────────────────── */
+if (checkSession()) activateAdminMode();
+renderGallery();
+updateCartUI();
+</script>
+</body>
+</html>
