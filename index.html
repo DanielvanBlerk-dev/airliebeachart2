@@ -867,36 +867,102 @@ function activateAdminMode() {
 
 /* ─── RENDER GALLERY ────────────────────────────────────────────────────── */
 function renderGallery() {
-  const grid = document.getElementById('gallery-grid');
-  grid.innerHTML = artworks.map(art => {
-    const imgContent = art.imgData
-      ? `<img src="${art.imgData}" style="width:100%;height:100%;object-fit:cover;">`
-      : (art.svg || `<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#e8e4dc"/><text x="150" y="210" text-anchor="middle" font-family="serif" font-size="13" fill="#a09880">${art.title}</text></svg>`);
-    return `
-      <div class="artwork-card" id="card-${art.id}">
-        <div class="artwork-img">
-          ${imgContent}
-          ${art.sold ? '<div class="sold-overlay">Sold</div>' : ''}
-        </div>
-        <div class="artwork-label">
-          <span class="artwork-title">${art.title}</span>
-          <span class="artwork-price">AUD $${art.price.toLocaleString()}</span>
-        </div>
-        <div class="artwork-medium">${art.medium}</div>
-        <button class="add-btn ${inCart(art.id)?'added':''}" id="btn-${art.id}"
-          onclick="addToCart(${art.id})" ${art.sold||inCart(art.id)?'disabled':''}>
-          ${art.sold ? 'Sold' : inCart(art.id) ? 'In your selection' : '+ Add to selection'}
-        </button>
-        <div class="admin-controls ${isAdmin?'visible':''}">
-          <button class="admin-ctrl-btn sold-toggle" onclick="toggleSold(${art.id})">
-            ${art.sold ? 'Mark available' : 'Mark sold'}
-          </button>
-          <button class="admin-ctrl-btn del" onclick="confirmDelete(${art.id}, ${JSON.stringify(art.title)})">
-            Delete
-          </button>
-        </div>
-      </div>`;
-  }).join('');
+  const grid = document.getElementById("gallery-grid");
+  grid.innerHTML = ""; // Clear existing content
+
+  artworks.forEach(art => {
+    const card = document.createElement("div");
+    card.className = "artwork-card";
+    card.id = `card-${art.id}`;
+
+    /* --- IMAGE WRAPPER --- */
+    const imgWrap = document.createElement("div");
+    imgWrap.className = "artwork-img";
+
+    if (art.imgData) {
+      const img = document.createElement("img");
+      img.src = art.imgData;
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "cover";
+      imgWrap.appendChild(img);
+    } else {
+      // Built‑in SVG placeholder (safe because static)
+      const svgContainer = document.createElement("div");
+      svgContainer.innerHTML = art.svg || "";
+      imgWrap.appendChild(svgContainer);
+    }
+
+    if (art.sold) {
+      const soldOverlay = document.createElement("div");
+      soldOverlay.className = "sold-overlay";
+      soldOverlay.textContent = "Sold";
+      imgWrap.appendChild(soldOverlay);
+    }
+
+    /* --- TITLE + PRICE ROW --- */
+    const label = document.createElement("div");
+    label.className = "artwork-label";
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "artwork-title";
+    titleEl.textContent = art.title;
+
+    const priceEl = document.createElement("span");
+    priceEl.className = "artwork-price";
+    priceEl.textContent = `AUD $${art.price.toLocaleString()}`;
+
+    label.appendChild(titleEl);
+    label.appendChild(priceEl);
+
+    /* --- MEDIUM TEXT --- */
+    const mediumEl = document.createElement("div");
+    mediumEl.className = "artwork-medium";
+    mediumEl.textContent = art.medium;
+
+    /* --- ADD TO CART BUTTON --- */
+    const addBtn = document.createElement("button");
+    addBtn.className = "add-btn";
+    if (inCart(art.id)) addBtn.classList.add("added");
+
+    addBtn.id = `btn-${art.id}`;
+    addBtn.textContent = art.sold
+      ? "Sold"
+      : inCart(art.id)
+      ? "In your selection"
+      : "+ Add to selection";
+
+    addBtn.disabled = art.sold || inCart(art.id);
+    addBtn.onclick = () => addToCart(art.id);
+
+    /* --- ADMIN CONTROLS --- */
+    const adminControls = document.createElement("div");
+    adminControls.className = "admin-controls";
+    if (isAdmin) adminControls.classList.add("visible");
+
+    const soldBtn = document.createElement("button");
+    soldBtn.className = "admin-ctrl-btn sold-toggle";
+    soldBtn.textContent = art.sold ? "Mark available" : "Mark sold";
+    soldBtn.onclick = () => toggleSold(art.id);
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "admin-ctrl-btn del";
+    delBtn.textContent = "Delete";
+    delBtn.onclick = () => confirmDelete(art.id, art.title);
+
+    adminControls.appendChild(soldBtn);
+    adminControls.appendChild(delBtn);
+
+    /* --- ASSEMBLE CARD --- */
+    card.appendChild(imgWrap);
+    card.appendChild(label);
+    card.appendChild(mediumEl);
+    card.appendChild(addBtn);
+    card.appendChild(adminControls);
+
+    /* --- ADD CARD TO GRID --- */
+    grid.appendChild(card);
+  });
 }
 
 function inCart(id) {
