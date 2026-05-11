@@ -1,5 +1,6 @@
 import { kv } from "@vercel/kv";
 import { verifyAdmin } from "./_verifyAdmin";
+import { sanitizeString } from "./_sanitize";
 
 export default async function handler(req, res) {
   if (req.method !== "PUT") {
@@ -10,6 +11,8 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
+  const safeTitle = sanitizeString(title);
+  const safeMedium = sanitizeString(medium);
   const { id, title, medium, price, sold, imgData } = req.body;
 
   try {
