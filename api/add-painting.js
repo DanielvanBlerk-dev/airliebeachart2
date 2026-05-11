@@ -1,6 +1,5 @@
 import { kv } from "@vercel/kv";
 import { verifyAdmin } from "./_verifyAdmin";
-import { sanitizeString } from "./_sanitize";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -17,9 +16,7 @@ export default async function handler(req, res) {
       price < 0) {
     return res.status(400).json({ success: false, error: "Invalid artwork data" });
   }
-
-  const safeTitle = sanitizeString(title);
-  const safeMedium = sanitizeString(medium);
+  
   const { title, medium, price, sold, imgData } = req.body;
 
   try {
