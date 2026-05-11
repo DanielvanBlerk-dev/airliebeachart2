@@ -1,5 +1,4 @@
 import { kv } from "@vercel/kv";
-import { sanitizeString } from "./_sanitize";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -8,8 +7,6 @@ export default async function handler(req, res) {
 
   try {
     const { sourceId, amount, currency } = req.body;
-    const safeTitle = sanitizeString(title);
-    const safeMedium = sanitizeString(medium);
     const accessToken = process.env.SQUARE_ACCESS_TOKEN;
     const locationId = process.env.SQUARE_LOCATION_ID;
 
