@@ -1,16 +1,16 @@
 import { kv } from "@vercel/kv";
 import { verifyAdmin } from "./_verifyAdmin";
+import { sanitizeString } from "./_sanitize";
+
+function isValidString(str) {
+  return typeof str === "string" &&
+         str.trim().length > 0 &&
+         !/[<>]/.test(str);
+}
 
 export default async function handler(req, res) {
   if (req.method !== "PUT") {
     return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  if (!isValidString(title) ||
-      !isValidString(medium) ||
-      typeof price !== "number" ||
-      price < 0) {
-    return res.status(400).json({ success: false, error: "Invalid artwork data" });
   }
 
   if (!verifyAdmin(req)) {
@@ -19,12 +19,22 @@ export default async function handler(req, res) {
 
   const { id, title, medium, price, sold, imgData } = req.body;
 
+  if (!isValidString(title) ||
+      !isValidString(medium) ||
+      typeof price !== "number" ||
+      price < 0) {
+    return res.status(400).json({ success: false, error: "Invalid artwork data" });
+  }
+
   try {
     let artworks = await kv.get("artworks") || [];
 
+    const safeTitle = sanitizeString(title);
+    const safeMedium = sanitizeString(medium);
+
     artworks = artworks.map(a =>
       Number(a.id) === Number(id)
-        ? { ...a, title, medium, price, sold, imgData }
+        ? { ...a, title: safeTitle, medium: safeMedium, price, sold, imgData }
         : a
     );
 
