@@ -1,5 +1,12 @@
 import { kv } from "@vercel/kv";
 import { verifyAdmin } from "./_verifyAdmin";
+import { sanitizeString } from "./_sanitize";
+
+function isValidString(str) {
+  return typeof str === "string" &&
+         str.trim().length > 0 &&
+         !/[<>]/.test(str);
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -9,15 +16,15 @@ export default async function handler(req, res) {
   if (!verifyAdmin(req)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  
+
+  const { title, medium, price, sold, imgData } = req.body;
+
   if (!isValidString(title) ||
       !isValidString(medium) ||
       typeof price !== "number" ||
       price < 0) {
     return res.status(400).json({ success: false, error: "Invalid artwork data" });
   }
-  
-  const { title, medium, price, sold, imgData } = req.body;
 
   try {
     let artworks = await kv.get("artworks") || [];
@@ -26,8 +33,8 @@ export default async function handler(req, res) {
 
     artworks.push({
       id,
-      title,
-      medium,
+      title: sanitizeString(title),
+      medium: sanitizeString(medium),
       price,
       sold,
       imgData,
