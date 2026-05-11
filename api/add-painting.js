@@ -10,6 +10,13 @@ export default async function handler(req, res) {
   if (!verifyAdmin(req)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
+  
+  if (!isValidString(title) ||
+      !isValidString(medium) ||
+      typeof price !== "number" ||
+      price < 0) {
+    return res.status(400).json({ success: false, error: "Invalid artwork data" });
+  }
 
   const safeTitle = sanitizeString(title);
   const safeMedium = sanitizeString(medium);
