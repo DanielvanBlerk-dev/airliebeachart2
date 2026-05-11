@@ -762,25 +762,16 @@
 </div>
 
 <script>
-/* ─── SQUARE CONFIGURATION ──────────────────────────────────────────────── */
-const SQUARE_CONFIG = {
-  applicationId: 'sandbox-sq0idb-REPLACE_WITH_YOUR_APP_ID',
-  locationId:    'REPLACE_WITH_YOUR_LOCATION_ID',
-};
-
-/* ─── ADMIN CONFIGURATION ───────────────────────────────────────────────── */
-// Change this to your own password before deploying:
+const STORAGE_KEY = 'atelier-airlie-artworks-v1';
+const SESSION_KEY = 'atelier-airlie-admin';
 const ADMIN_PASSWORD = 'atelier2026';
-const STORAGE_KEY = 'atelier_artworks';
-const SESSION_KEY = 'atelier_admin';
 
 let isAdmin = false;
 let pendingDeleteId = null;
 
-/* ─── DEFAULT ARTWORK DATA ──────────────────────────────────────────────── */
 const DEFAULT_ARTWORKS = [
-  { id:1, title:'Still Life with Lemons', medium:'Oil on linen · 50 × 60 cm', price:1800, sold:false,
-    svg:`<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#f0ebe0"/><rect x="0" y="280" width="300" height="120" fill="#d4c9b0"/><ellipse cx="110" cy="265" rx="48" ry="22" fill="#c8a820" opacity="0.9"/><ellipse cx="190" cy="270" rx="42" ry="19" fill="#d4b422"/><ellipse cx="150" cy="258" rx="36" ry="16" fill="#e8c830"/><rect x="80" y="100" width="140" height="165" rx="2" fill="#9b8870" opacity="0.3"/><path d="M120 180 Q150 140 180 180" stroke="#7a6050" fill="none" stroke-width="1.5"/><circle cx="90" cy="80" r="8" fill="#8fb050" opacity="0.6"/><circle cx="200" cy="90" r="6" fill="#7a9840" opacity="0.5"/><text x="150" y="360" text-anchor="middle" font-family="serif" font-size="9" fill="#7a6050" opacity="0.5">still life with lemons</text></svg>`},
+  { id:1, title:'Still Life with Lemons', medium:'Oil on linen · 40 × 50 cm', price:1800, sold:false,
+    svg:`<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#f5f0e8"/><rect x="40" y="60" width="220" height="260" fill="#e0d4c0"/><ellipse cx="140" cy="230" rx="70" ry="30" fill="#f2d452"/><ellipse cx="170" cy="220" rx="55" ry="26" fill="#f8e070"/><ellipse cx="200" cy="235" rx="40" ry="20" fill="#f0c840"/><path d="M90 210 Q110 180 140 190 T190 190" stroke="#c8a820" fill="none" stroke-width="2"/><circle cx="120" cy="220" r="6" fill="#d4c9b0"/><circle cx="160" cy="215" r="5" fill="#d4c9b0"/><ellipse cx="110" cy="265" rx="48" ry="22" fill="#c8a820" opacity="0.9"/><ellipse cx="190" cy="270" rx="42" ry="19" fill="#d4b422"/><ellipse cx="150" cy="258" rx="36" ry="16" fill="#e8c830"/><rect x="80" y="100" width="140" height="165" rx="2" fill="#9b8870" opacity="0.3"/><path d="M120 180 Q150 140 180 180" stroke="#7a6050" fill="none" stroke-width="1.5"/><circle cx="90" cy="80" r="8" fill="#8fb050" opacity="0.6"/><circle cx="200" cy="90" r="6" fill="#7a9840" opacity="0.5"/><text x="150" y="360" text-anchor="middle" font-family="serif" font-size="9" fill="#7a6050" opacity="0.5">still life with lemons</text></svg>`},
   { id:2, title:'Coastal Morning', medium:'Oil on board · 30 × 40 cm', price:950, sold:false,
     svg:`<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#e8eef5"/><rect y="0" width="300" height="220" fill="#c8d8e8"/><rect y="220" width="300" height="60" fill="#b8c8d8"/><rect y="280" width="300" height="120" fill="#d4c8a8"/><ellipse cx="150" cy="80" rx="60" ry="40" fill="#f5f0e8" opacity="0.7"/><path d="M0 250 Q75 235 150 248 Q225 260 300 245" stroke="#8a9ab0" fill="none" stroke-width="1.5" opacity="0.6"/><path d="M0 265 Q75 250 150 262 Q225 274 300 258" stroke="#7a8aa0" fill="none" stroke-width="1" opacity="0.4"/></svg>`},
   { id:3, title:'Interior, Late Afternoon', medium:'Acrylic on linen · 60 × 80 cm', price:2400, sold:false,
@@ -794,15 +785,19 @@ const DEFAULT_ARTWORKS = [
 ];
 
 function loadArtworks() {
-  try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : DEFAULT_ARTWORKS; }
-  catch { return DEFAULT_ARTWORKS; }
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    return s ? JSON.parse(s) : DEFAULT_ARTWORKS;
+  } catch {
+    return DEFAULT_ARTWORKS;
+  }
 }
+
 function saveArtworks() {
   try {
     const toSave = artworks.map(a => {
       const copy = Object.assign({}, a);
-      // imgData can be megabytes — store a flag instead and keep the in-memory blob
-      if (copy.imgData) copy.imgData = copy.imgData; // keep for now; if quota fails, see below
+      if (copy.imgData) copy.imgData = copy.imgData;
       return copy;
     });
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
@@ -816,6 +811,7 @@ function saveArtworks() {
     }
   }
 }
+
 let artworks = loadArtworks();
 
 /* ─── CART STATE ────────────────────────────────────────────────────────── */
@@ -824,7 +820,10 @@ let squareCard = null;
 let squarePayments = null;
 
 /* ─── ADMIN AUTH ────────────────────────────────────────────────────────── */
-function checkSession() { try { return sessionStorage.getItem(SESSION_KEY)==='1'; } catch { return false; } }
+function checkSession() {
+  try { return sessionStorage.getItem(SESSION_KEY) === '1'; }
+  catch { return false; }
+}
 
 function openLogin() {
   document.getElementById('admin-pw').value = '';
@@ -832,7 +831,10 @@ function openLogin() {
   document.getElementById('login-overlay').classList.add('open');
   setTimeout(() => document.getElementById('admin-pw').focus(), 200);
 }
-function closeLogin() { document.getElementById('login-overlay').classList.remove('open'); }
+
+function closeLogin() {
+  document.getElementById('login-overlay').classList.remove('open');
+}
 
 function attemptLogin() {
   const pw = document.getElementById('admin-pw').value;
@@ -871,32 +873,35 @@ function renderGallery() {
       ? `<img src="${art.imgData}" style="width:100%;height:100%;object-fit:cover;">`
       : (art.svg || `<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="400" fill="#e8e4dc"/><text x="150" y="210" text-anchor="middle" font-family="serif" font-size="13" fill="#a09880">${art.title}</text></svg>`);
     return `
-    <div class="artwork-card" id="card-${art.id}">
-      <div class="artwork-img">
-        ${imgContent}
-        ${art.sold ? '<div class="sold-overlay">Sold</div>' : ''}
-      </div>
-      <div class="artwork-label">
-        <span class="artwork-title">${art.title}</span>
-        <span class="artwork-price">AUD $${art.price.toLocaleString()}</span>
-      </div>
-      <div class="artwork-medium">${art.medium}</div>
-      <button class="add-btn ${inCart(art.id)?'added':''}" id="btn-${art.id}"
-        onclick="addToCart(${art.id})" ${art.sold||inCart(art.id)?'disabled':''}>
-        ${art.sold ? 'Sold' : inCart(art.id) ? 'In your selection' : '+ Add to selection'}
-      </button>
-      <div class="admin-controls ${isAdmin?'visible':''}">
-        <button class="admin-ctrl-btn sold-toggle" onclick="toggleSold(${art.id})">
-          ${art.sold ? 'Mark available' : 'Mark sold'}
+      <div class="artwork-card" id="card-${art.id}">
+        <div class="artwork-img">
+          ${imgContent}
+          ${art.sold ? '<div class="sold-overlay">Sold</div>' : ''}
+        </div>
+        <div class="artwork-label">
+          <span class="artwork-title">${art.title}</span>
+          <span class="artwork-price">AUD $${art.price.toLocaleString()}</span>
+        </div>
+        <div class="artwork-medium">${art.medium}</div>
+        <button class="add-btn ${inCart(art.id)?'added':''}" id="btn-${art.id}"
+          onclick="addToCart(${art.id})" ${art.sold||inCart(art.id)?'disabled':''}>
+          ${art.sold ? 'Sold' : inCart(art.id) ? 'In your selection' : '+ Add to selection'}
         </button>
-        <button class="admin-ctrl-btn del" onclick="confirmDelete(${art.id}, ${JSON.stringify(art.title)})">
-          Delete
-        </button>
-      </div>
-    </div>`;
+        <div class="admin-controls ${isAdmin?'visible':''}">
+          <button class="admin-ctrl-btn sold-toggle" onclick="toggleSold(${art.id})">
+            ${art.sold ? 'Mark available' : 'Mark sold'}
+          </button>
+          <button class="admin-ctrl-btn del" onclick="confirmDelete(${art.id}, ${JSON.stringify(art.title)})">
+            Delete
+          </button>
+        </div>
+      </div>`;
   }).join('');
 }
-function inCart(id) { return cart.some(i => i.id === id); }
+
+function inCart(id) {
+  return cart.some(i => i.id === id);
+}
 
 /* ─── ADMIN ACTIONS ─────────────────────────────────────────────────────── */
 function toggleSold(id) {
@@ -905,7 +910,9 @@ function toggleSold(id) {
   if (!art) return;
   art.sold = !art.sold;
   if (art.sold) cart = cart.filter(i => Number(i.id) !== id);
-  saveArtworks(); updateCartUI(); renderGallery();
+  saveArtworks();
+  updateCartUI();
+  renderGallery();
 }
 
 function confirmDelete(id, title) {
@@ -913,16 +920,21 @@ function confirmDelete(id, title) {
   document.getElementById('confirm-sub').textContent = `"${title}" will be removed from your gallery permanently.`;
   document.getElementById('confirm-overlay').classList.add('open');
 }
+
 function closeConfirm() {
   document.getElementById('confirm-overlay').classList.remove('open');
 }
+
 function deletePainting() {
   const id = pendingDeleteId;
   if (id === null || id === undefined) return;
   artworks = artworks.filter(a => Number(a.id) !== id);
   cart = cart.filter(i => Number(i.id) !== id);
   pendingDeleteId = null;
-  saveArtworks(); updateCartUI(); renderGallery(); closeConfirm();
+  saveArtworks();
+  updateCartUI();
+  renderGallery();
+  closeConfirm();
 }
 
 /* ─── ADD PAINTING ──────────────────────────────────────────────────────── */
@@ -938,34 +950,47 @@ function openAddPanel() {
   document.getElementById('img-preview-el').style.display = 'none';
   newImgData = null;
 }
+
 function closeAddPanel() {
   document.getElementById('add-panel').classList.remove('open');
   document.body.style.overflow = '';
 }
+
 function handleImgUpload(e) {
-  const file = e.target.files[0]; if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
     newImgData = ev.target.result;
     document.getElementById('img-placeholder').style.display = 'none';
     const preview = document.getElementById('img-preview-el');
-    preview.src = newImgData; preview.style.display = 'block';
+    preview.src = newImgData;
+    preview.style.display = 'block';
   };
   reader.readAsDataURL(file);
 }
+
 function saveNewPainting() {
   const title = document.getElementById('new-title').value.trim();
   const medium = document.getElementById('new-medium').value.trim();
   const priceRaw = document.getElementById('new-price').value;
   const sold = document.getElementById('new-sold').checked;
   const errEl = document.getElementById('add-error');
+
   if (!title) { errEl.textContent = 'Please enter a title.'; return; }
   if (!medium) { errEl.textContent = 'Please enter the medium and dimensions.'; return; }
+
   const price = parseInt(priceRaw, 10);
-  if (!priceRaw || isNaN(price) || price < 0) { errEl.textContent = 'Please enter a valid price.'; return; }
+  if (!priceRaw || isNaN(price) || price < 0) {
+    errEl.textContent = 'Please enter a valid price.';
+    return;
+  }
+
   const newId = Date.now();
   artworks.push({ id: newId, title, medium, price, sold, imgData: newImgData || null, svg: null });
-  saveArtworks(); renderGallery(); closeAddPanel();
+  saveArtworks();
+  renderGallery();
+  closeAddPanel();
   setTimeout(() => document.getElementById('card-'+newId)?.scrollIntoView({ behavior:'smooth', block:'center' }), 200);
 }
 
@@ -973,31 +998,51 @@ function saveNewPainting() {
 function addToCart(id) {
   const art = artworks.find(a => a.id === id);
   if (!art || art.sold || inCart(id)) return;
-  cart.push(art); updateCartUI(); renderGallery(); openCart();
+  cart.push(art);
+  updateCartUI();
+  renderGallery();
+  openCart();
 }
-function removeFromCart(id) { cart = cart.filter(i => i.id !== id); updateCartUI(); renderGallery(); }
+
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  updateCartUI();
+  renderGallery();
+}
 
 function updateCartUI() {
   const count = cart.length;
   document.getElementById('cart-count').textContent = count;
   document.getElementById('checkout-btn').disabled = count === 0;
+
   const total = cart.reduce((s, i) => s + i.price, 0);
   document.getElementById('cart-total').textContent = `AUD $${total.toLocaleString()}`;
+
   const itemsEl = document.getElementById('cart-items');
   const empty = document.getElementById('cart-empty');
-  if (count === 0) { empty.style.display = 'block'; itemsEl.innerHTML = ''; itemsEl.appendChild(empty); return; }
+
+  if (count === 0) {
+    empty.style.display = 'block';
+    itemsEl.innerHTML = '';
+    itemsEl.appendChild(empty);
+    return;
+  }
+
   empty.style.display = 'none';
   itemsEl.innerHTML = cart.map(art => {
-    const thumb = art.imgData ? `<img src="${art.imgData}" style="width:100%;height:100%;object-fit:cover;">` : (art.svg || '');
-    return `<div class="cart-item">
-      <div class="cart-item-thumb">${thumb}</div>
-      <div>
-        <div class="cart-item-name">${art.title}</div>
-        <div class="cart-item-meta">${art.medium}</div>
-        <button class="remove-item" onclick="removeFromCart(${art.id})">Remove</button>
-      </div>
-      <div class="cart-item-price">$${art.price.toLocaleString()}</div>
-    </div>`;
+    const thumb = art.imgData
+      ? `<img src="${art.imgData}" style="width:100%;height:100%;object-fit:cover;">`
+      : (art.svg || '');
+    return `
+      <div class="cart-item">
+        <div class="cart-item-thumb">${thumb}</div>
+        <div>
+          <div class="cart-item-name">${art.title}</div>
+          <div class="cart-item-meta">${art.medium}</div>
+          <button class="remove-item" onclick="removeFromCart(${art.id})">Remove</button>
+        </div>
+        <div class="cart-item-price">$${art.price.toLocaleString()}</div>
+      </div>`;
   }).join('');
 }
 
@@ -1006,42 +1051,38 @@ function openCart() {
   document.getElementById('cart-panel').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
+
 function toggleCart() {
   const open = document.getElementById('cart-panel').classList.contains('open');
   if (open) {
     document.getElementById('cart-overlay').classList.remove('open');
     document.getElementById('cart-panel').classList.remove('open');
     document.body.style.overflow = '';
-  } else { openCart(); }
+  } else {
+    openCart();
+  }
 }
 
 /* ─── CHECKOUT ──────────────────────────────────────────────────────────── */
 function buildOrderSummary() {
   const total = cart.reduce((s, i) => s + i.price, 0);
-
-const res = await fetch("/api/create-payment", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    sourceId,
-    amount: total * 100,   // convert AUD → cents
-    currency: "AUD"
-  })
-});
-
-const data = await res.json();
-
-if (!data.success) {
-  showPaymentError("Payment failed. Please try again.");
-  return;
-}
-
-showSuccess(data.orderId);
-
+  return `
+    <div class="summary-line">
+      <span>Subtotal</span>
+      <span>AUD $${total.toLocaleString()}</span>
+    </div>
+    <div class="summary-line total">
+      <span>Total</span>
+      <span>AUD $${total.toLocaleString()}</span>
+    </div>
+  `;
 }
 
 async function initSquare() {
-  if (!window.Square) { showPaymentError('Square failed to load.'); return; }
+  if (!window.Square) {
+    showPaymentError('Square failed to load.');
+    return;
+  }
   try {
     squarePayments = window.Square.payments(SQUARE_CONFIG.applicationId, SQUARE_CONFIG.locationId);
     squareCard = await squarePayments.card();
@@ -1057,51 +1098,118 @@ async function openCheckout() {
   document.getElementById('cart-overlay').classList.remove('open');
   document.getElementById('cart-panel').classList.remove('open');
   document.body.style.overflow = 'hidden';
+
   document.getElementById('order-summary').innerHTML = buildOrderSummary();
   document.getElementById('checkout-modal').classList.add('open');
   document.getElementById('checkout-body').style.display = 'block';
   document.getElementById('success-state').style.display = 'none';
+
   if (!squareCard) await initSquare();
 }
-function closeCheckout() { document.getElementById('checkout-modal').classList.remove('open'); document.body.style.overflow = ''; }
 
-function showPaymentError(msg) { const el = document.getElementById('payment-error'); el.textContent = msg; el.style.display = 'block'; }
+function closeCheckout() {
+  document.getElementById('checkout-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function showPaymentError(msg) {
+  const el = document.getElementById('payment-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
 
 function validateForm() {
-  const fields = [['first-name','First name'],['last-name','Last name'],['email','Email'],['address','Address'],['city','City'],['postcode','Postcode']];
+  const fields = [
+    ['first-name','First name'],
+    ['last-name','Last name'],
+    ['email','Email'],
+    ['address','Address'],
+    ['city','City'],
+    ['postcode','Postcode']
+  ];
+
   for (const [id, label] of fields) {
-    if (!document.getElementById(id).value.trim()) { showPaymentError(`Please enter your ${label}.`); return false; }
+    if (!document.getElementById(id).value.trim()) {
+      showPaymentError(`Please enter your ${label}.`);
+      return false;
+    }
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('email').value)) { showPaymentError('Please enter a valid email address.'); return false; }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('email').value)) {
+    showPaymentError('Please enter a valid email address.');
+    return false;
+  }
+
   return true;
 }
 
 async function handlePayment() {
-  document.getElementById('payment-error').style.display = 'none';
+  const errorEl = document.getElementById('payment-error');
+  errorEl.style.display = 'none';
+
   if (!validateForm()) return;
-  if (!squareCard) { showPaymentError('Payment form is not ready. Please try again.'); return; }
+
+  if (!squareCard) {
+    showPaymentError('Payment form is not ready. Please try again.');
+    return;
+  }
+
   const btn = document.getElementById('pay-btn');
-  btn.disabled = true; btn.textContent = 'Processing…';
+  btn.disabled = true;
+  btn.textContent = 'Processing…';
+
   try {
     const result = await squareCard.tokenize();
-    if (result.status === 'OK') {
-      await processPayment(result.token);
-    } else {
-      showPaymentError(result.errors?.map(e => e.message).join(' ') || 'Card error — please check your details.');
-      btn.disabled = false; btn.textContent = 'Complete Purchase';
+
+    if (result.status !== 'OK') {
+      showPaymentError(
+        result.errors?.map(e => e.message).join(' ') ||
+        'Card error — please check your details.'
+      );
+      btn.disabled = false;
+      btn.textContent = 'Complete Purchase';
+      return;
     }
-  } catch (e) {
+
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+
+    const response = await fetch('/api/create-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sourceId: result.token,
+        amount: total * 100,
+        currency: 'AUD'
+      })
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      showPaymentError('Payment failed. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Complete Purchase';
+      return;
+    }
+
+    showSuccess(data.orderId);
+
+  } catch (err) {
+    console.error(err);
     showPaymentError('An unexpected error occurred. Please try again.');
-    console.error(e); btn.disabled = false; btn.textContent = 'Complete Purchase';
+    btn.disabled = false;
+    btn.textContent = 'Complete Purchase';
   }
 }
 
 async function processPayment(sourceId) {
-  // Send sourceId to your backend → Square /v2/payments. Never charge from the browser.
+  // Legacy placeholder – no longer used, kept for reference
   await new Promise(r => setTimeout(r, 1400));
   const orderId = 'ATL-' + Math.random().toString(36).substr(2,8).toUpperCase();
-  // Mark sold
-  cart.forEach(item => { const art = artworks.find(a => a.id === item.id); if (art) art.sold = true; });
+  cart.forEach(item => {
+    const art = artworks.find(a => a.id === item.id);
+    if (art) art.sold = true;
+  });
   saveArtworks();
   showSuccess(orderId);
 }
@@ -1113,8 +1221,11 @@ function showSuccess(orderId) {
 }
 
 function resetShop() {
-  cart = []; updateCartUI(); renderGallery();
-  squareCard = null; squarePayments = null;
+  cart = [];
+  updateCartUI();
+  renderGallery();
+  squareCard = null;
+  squarePayments = null;
   document.getElementById('card-container').innerHTML = '';
 }
 
