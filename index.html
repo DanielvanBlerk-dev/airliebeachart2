@@ -795,6 +795,18 @@ const DEFAULT_ARTWORKS = [
 ];
 
 /* ─── HELPERS ───────────────────────────────────────────────────────────── */
+function containsHTML(str) {
+  return /[<>]/.test(str);
+}
+
+function isValidPhone(str) {
+  return /^[0-9+\s-]{6,20}$/.test(str);
+}
+
+function isValidPostcode(str) {
+  return /^[0-9]{4}$/.test(str);
+}
+
 function getAdminToken() {
   return sessionStorage.getItem(ADMIN_TOKEN_KEY);
 }
@@ -1097,6 +1109,7 @@ function closeAddPanel() {
 function handleImgUpload(e) {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
+
   const reader = new FileReader();
   reader.onload = ev => {
     newImgData = ev.target.result;
@@ -1130,6 +1143,11 @@ async function saveNewPainting() {
   const medium = mediumEl.value.trim();
   const priceRaw = priceEl.value;
   const sold = soldEl.checked;
+
+  if (containsHTML(title) || containsHTML(medium)) {
+    errEl.textContent = 'HTML tags are not allowed.';
+    return;
+  }
 
   if (!title) { errEl.textContent = 'Please enter a title.'; return; }
   if (!medium) { errEl.textContent = 'Please enter the medium and dimensions.'; return; }
@@ -1173,6 +1191,7 @@ async function saveNewPainting() {
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 200);
+
   } catch (e) {
     console.error(e);
     errEl.textContent = 'Unexpected error while saving.';
@@ -1330,6 +1349,7 @@ async function initSquare() {
     showPaymentError('Square failed to load.');
     return;
   }
+
   try {
     squarePayments = window.Square.payments(SQUARE_CONFIG.applicationId, SQUARE_CONFIG.locationId);
     squareCard = await squarePayments.card();
@@ -1386,21 +1406,48 @@ function validateForm() {
     ['email','Email'],
     ['address','Address'],
     ['city','City'],
-    ['postcode','Postcode']
+    ['postcode','Postcode'],
+    ['phone','Phone']
   ];
 
   for (const [id, label] of fields) {
     const el = document.getElementById(id);
-    if (!el || !el.value.trim()) {
+    if (!el) {
       showPaymentError(`Please enter your ${label}.`);
+      return false;
+    }
+    const val = el.value.trim();
+    if (!val) {
+      showPaymentError(`Please enter your ${label}.`);
+      return false;
+    }
+    if (containsHTML(val)) {
+      showPaymentError('HTML tags are not allowed.');
       return false;
     }
   }
 
   const emailEl = document.getElementById('email');
   if (!emailEl) return false;
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value)) {
+  const emailVal = emailEl.value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
     showPaymentError('Please enter a valid email address.');
+    return false;
+  }
+
+  const phoneEl = document.getElementById('phone');
+  if (!phoneEl) return false;
+  const phoneVal = phoneEl.value.trim();
+  if (!isValidPhone(phoneVal)) {
+    showPaymentError('Please enter a valid phone number.');
+    return false;
+  }
+
+  const pcEl = document.getElementById('postcode');
+  if (!pcEl) return false;
+  const pcVal = pcEl.value.trim();
+  if (!isValidPostcode(pcVal)) {
+    showPaymentError('Postcode must be 4 digits.');
     return false;
   }
 
