@@ -1,10 +1,7 @@
 import jwt from "jsonwebtoken";
-import { sanitizeString } from "./_sanitize";
 
 export function verifyAdmin(req) {
   try {
-    const safeTitle = sanitizeString(title);
-    const safeMedium = sanitizeString(medium);
     const header = req.headers.authorization;
     if (!header) return false;
 
