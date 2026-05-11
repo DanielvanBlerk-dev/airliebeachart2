@@ -1,4 +1,8 @@
 import { kv } from "@vercel/kv";
+import { sanitizeString } from "./_sanitize";
+
+const safeTitle = sanitizeString(title);
+const safeMedium = sanitizeString(medium);
 
 export default async function handler(req, res) {
   try {
